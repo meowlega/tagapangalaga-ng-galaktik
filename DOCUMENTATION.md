@@ -1,3 +1,4 @@
+<img width="1920" height="1080" alt="universe_view" src="https://github.com/user-attachments/assets/c0a831d3-a060-4b0f-bfde-2fc16bcb430f" />
 Welcome, thanks for reading, this took time ..
 
 # Introduction
@@ -58,7 +59,7 @@ And so on .. You could literally put your planets at any point, anywhere in the 
 
 *Galaxy View where the Planets exist*
 
-<img width="1920" height="1080" alt="galaxy_view2" src="https://github.com/user-attachments/assets/895d3cd9-3f61-40dd-8d0d-2b5c45ea6880" />
+<img width="1920" height="1080" alt="universe_view" src="https://github.com/user-attachments/assets/4843e160-1603-4bcf-b555-f371204d52f2" />
 
 *Universe View, where the Galaxies exist*
 
