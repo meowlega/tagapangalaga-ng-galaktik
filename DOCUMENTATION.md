@@ -5,6 +5,7 @@ Welcome, thanks for reading, this took time ..
 If you want to understand why this project exist, what is the problem, and does it solves, you first need to understand the game itself.
 
 <img width="1920" height="1080" alt="galaxy_life_main" src="https://github.com/user-attachments/assets/46af631b-866d-44ca-be85-72c68bab9357" />
+
 Welcome to **Galaxy Life**. It's a massive multiplayer real-time strategy game. If you've ever played *Clash of Clans*, then you already got the basics. You progress by upgrading your *Base*, You build defenses to repel an attack, Train an army to attack other players, you get the idea. There's also *Alliances*, and *Wars*.
 
 Even tho there is similarities, Galaxy Life and Clash of Clans greatly differs from each others. In Clash of Clans, you get 1 Main base, and maybe a different variants like *Builders base* and *Clan Capital*. But ultimately the Main base is the one who get all the attention for upgrades. And in Alliances and Wars, Main base is the one that gets hits.
@@ -23,7 +24,7 @@ Not to mention that each Planet is an entity of their own. Each planets can **tr
 
 Now that we know how a **Planet** functions, we can now go to the topic of **Colonization** and **Galaxy**.
 
-Each Planet lies on an entity called **Galaxies**. each Galaxy can **contain up to maximum 9 Planets**. There are also different types of **Galaxies** but its not important right now. Theoretically, since you have up to max 12 Planets at disposal, you could *colonize an entire Galaxy of your own*, but thats for funsies.
+Each Planet lies on an entity called **Galaxies**. each Galaxy can **contain up to maximum 12 Planets**. There are also different types of **Galaxies** but its not important right now. Theoretically, since you have up to max 12 Planets at disposal, you could *colonize an entire Galaxy of your own*, but thats for funsies.
 
 Now because a single Galaxy cannot even hold all of your 12 Planets, what is the other mechanic? **Universe**. In the Universe, it acts like a 2D Cartesian plane grid, where each grid can contain a *unique galaxy*. Lets say in Universe(1,1), there lies a Galaxy named "Calisto". So the galaxy would be named **Calisto (1,1)**. Then in (3,1), there could be a **Andromeda (3,1)**. Not all coordinates in the Universe have a galaxy, but *only one galaxy can be at exact coordinate*. There is no Andromeda (3,1) and Calisto (3,1) .. It is not allowed.
 
@@ -40,3 +41,22 @@ Planet 7 Melanthri (77,22)
 Up to Planet 12
 
 And so on .. You could literally put your planets at any point, anywhere in the Galaxy on the Universe. As long as there is a Galaxy at the edge of the Universe, you could put a Planet there. For the limits, as of now, the Universe at best is 1200 x 1200. That makes it 14,400,000 unique coordinates, but as I said, not all coordinates have a Galaxy. The estimated unique Galaxy count spread in the Universe is at most 1,000,000. But that is still goddamn many!
+
+<img width="1920" height="1080" alt="sample_base" src="https://github.com/user-attachments/assets/fff3e70d-711f-40d0-b365-4ef717f57833" />
+*Sample image of a Galaxy Life Base*
+
+<img width="518" height="448" alt="planets_max" src="https://github.com/user-attachments/assets/8a5a453b-de82-4344-9a35-a38c7c2bd4db" />
+*A player with 12 Planets*
+
+<img width="667" height="554" alt="low_level_planets" src="https://github.com/user-attachments/assets/763a549b-0169-473f-a973-05b27e21de69" />
+*A beginner player with few planets*
+
+<img width="1920" height="1080" alt="galaxy_view" src="https://github.com/user-attachments/assets/6a7df818-e03b-47c1-a1d6-f21de6f2e867" />
+*Galaxy View where the Planets exist*
+
+<img width="1920" height="1080" alt="galaxy_view2" src="https://github.com/user-attachments/assets/895d3cd9-3f61-40dd-8d0d-2b5c45ea6880" />
+*Universe View, where the Galaxies exist*
+
+<img width="1920" height="1080" alt="galaxy_view2" src="https://github.com/user-attachments/assets/12fdaeea-f417-4e80-8fed-af47ae0e4f1d" />
+*UI when you click a Galaxy on the Universe*
+
