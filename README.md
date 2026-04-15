@@ -14,6 +14,7 @@
 - **Keyboard** for listening hotkey inputs, lets say I wanna pause, or resume running script
 - **Ultralytics** (YOLO AI) for running AI shenanigans
 - **torch** (PyTorch) doing the heavy lifting on training the AI
+- **mitmproxy** for packet sniffing
 
 ### Database
 - **SQLITE** for initial testing and validation of my schema
