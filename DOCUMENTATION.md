@@ -75,3 +75,32 @@ And so on .. You could literally put your planets at any point, anywhere in the 
 
 *UI when you click a Galaxy on the Universe*
 
+Now lets go for the topic of attacking. We will compare Clash of Clans again to Galaxy Life, In Clash of Clans, when one Player attacked another, it is done into 1 attack only. Meaning if you didn't destroy the base in 1 attack, you are kinda cooked.
+
+In Galaxy Life, things also get kinda complex. Here, **you can attack a Planet as many times as you want**. A Planet defense is really tough and overpowered. You are aware on how **different Planets can have independent trained troops**. Usually, to destroy a very good enemy base Planet, you need 4 consecutive attacks.
+
+Lets say in Planet #1, you trained all units specifically just to destroy defenses, and you also queue units so that they are pre-trained already. There is a limit on pre-training but mind you that units on this damn game takes really long to train, maybe because you can split the training up to 12 Planets, but still.
+
+Yeah in Planet #1, all of this can be units that destroy defenses, then on Planet #2, all of units are for *looting*. Suprisingly, resource buildings in this game is just damn tanky. And there's alot of factors to consider that you really need a *clean up crew*.
+
+So yeah, the way it works usually is Enemy Planet 1 would be attacked by 2 Planets:
+
+Attack #1: Enemy Planet gets attacked by Planet 1 anti defense troops. If successful, it should delete 50% of the defense or more.
+
+Attack #2: Enemy Planet gets attacked once again by Planet 1 (now using the queued pre-trained units). If succesful, it should delete the rest of the defenses.
+
+Attack #3: Assuming that there is now no defense, depending on amount of traps hidden, or the placements of the buildings and walls, you could *clean* the base with one go using Planet 2 cleaning troops.
+
+Attack #4: Sometimes sht is really tough and you need a second cleaning attack, wiping the base 100% destroyed.
+
+But yeah, this can vary, maybe you need to invest more in anti defense because enemy Planet base is too good, or you could do it in 1 go (rare) because the one who made the base makes it *free* or it was designed by a toddler.
+
+There are planet rules tho, when a Planet is 100% destroyed, it will start a countdown, usually 3 hours. Then after that 3 hours, the Planet can be attacked once again! albeit maybe lower resource gain because you already looted it on first attack.
+
+If you didn't 100% the base, it will foreverly not regenerate unless you destroy the remaining building, but the owner of the Planet can comes back (goes online) and regenerate their base manually.
+
+Here's whats interesting, suppose you really hate that damn Player, you could use your Planet #1 and #2 to attack the hated Player Planet #1, but you want to destroy all that players base?. Now that is interesting. If it takes 2 Planets worth of units just to destroy 1 enemy Planet, then at most, if you are try hard, you could only destroy 6 enemy Planets, supposed that the enemy Planets are maxed out and have good defense, and your attacking Planet troops is upgraded and used with skill properly.
+
+Also, because you attacked 6 Planets, you basically robbed that guy 6x of their resource. And there's even better rule! you know *Training Camps*, where the trained units stays? well .. **if training camp gets destroyed in attack, you lose all trained troops in that camp**, and when you come back, the ones will go out and fill the Training Camps are the ones you *queued*, and then you already have no *succeeding* troops to attack with.
+
+This game can be grindy, cruel, competitive, but thats why I love it! I am a competitive person, same with my friends. I hope you understand the crazy mechanics of this game above, there's more but no need to deep dive really.
