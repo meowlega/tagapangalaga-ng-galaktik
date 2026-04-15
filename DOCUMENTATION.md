@@ -32,13 +32,21 @@ Now because a single Galaxy cannot even hold all of your 12 Planets, what is the
 As we say, we could have have max 9 Planets in one single Galaxy, or we could colonize different Galaxies nearby. We could have something like this:
 
 Planet 1 Andromeda (3,1) *# Main Planet*
+
 Planet 2 Andromeda (3,1) *# I want to put both of my Planets in Adromeda for fun*
+
 Planet 3 Calisto (1,1)
+
 Planet 4 Armik (100,23)
+
 Planet 5 Nina (700,324)
+
 Planet 6 Calisto (22,1001) *# Understand that Galaxy names can repeat, but their coordinates is what makes them unique!*
+
 Planet 7 Melanthri (77,22)
+
 ...
+
 Up to Planet 12
 
 And so on .. You could literally put your planets at any point, anywhere in the Galaxy on the Universe. As long as there is a Galaxy at the edge of the Universe, you could put a Planet there. For the limits, as of now, the Universe at best is 1200 x 1200. That makes it 14,400,000 unique coordinates, but as I said, not all coordinates have a Galaxy. The estimated unique Galaxy count spread in the Universe is at most 1,000,000. But that is still goddamn many!
