@@ -4,6 +4,7 @@ Welcome, thanks for reading, this took time ..
 
 If you want to understand why this project exist, what is the problem, and does it solves, you first need to understand the game itself.
 
+<img width="1920" height="1080" alt="galaxy_life_main" src="https://github.com/user-attachments/assets/46af631b-866d-44ca-be85-72c68bab9357" />
 Welcome to **Galaxy Life**. It's a massive multiplayer real-time strategy game. If you've ever played *Clash of Clans*, then you already got the basics. You progress by upgrading your *Base*, You build defenses to repel an attack, Train an army to attack other players, you get the idea. There's also *Alliances*, and *Wars*.
 
 Even tho there is similarities, Galaxy Life and Clash of Clans greatly differs from each others. In Clash of Clans, you get 1 Main base, and maybe a different variants like *Builders base* and *Clan Capital*. But ultimately the Main base is the one who get all the attention for upgrades. And in Alliances and Wars, Main base is the one that gets hits.
