@@ -1,4 +1,3 @@
-<img width="1920" height="1080" alt="universe_view" src="https://github.com/user-attachments/assets/c0a831d3-a060-4b0f-bfde-2fc16bcb430f" />
 Welcome, thanks for reading, this took time ..
 
 # Introduction
