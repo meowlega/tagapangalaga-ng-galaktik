@@ -43,20 +43,26 @@ Up to Planet 12
 And so on .. You could literally put your planets at any point, anywhere in the Galaxy on the Universe. As long as there is a Galaxy at the edge of the Universe, you could put a Planet there. For the limits, as of now, the Universe at best is 1200 x 1200. That makes it 14,400,000 unique coordinates, but as I said, not all coordinates have a Galaxy. The estimated unique Galaxy count spread in the Universe is at most 1,000,000. But that is still goddamn many!
 
 <img width="1920" height="1080" alt="sample_base" src="https://github.com/user-attachments/assets/fff3e70d-711f-40d0-b365-4ef717f57833" />
+
 *Sample image of a Galaxy Life Base*
 
 <img width="518" height="448" alt="planets_max" src="https://github.com/user-attachments/assets/8a5a453b-de82-4344-9a35-a38c7c2bd4db" />
+
 *A player with 12 Planets*
 
 <img width="667" height="554" alt="low_level_planets" src="https://github.com/user-attachments/assets/763a549b-0169-473f-a973-05b27e21de69" />
+
 *A beginner player with few planets*
 
 <img width="1920" height="1080" alt="galaxy_view" src="https://github.com/user-attachments/assets/6a7df818-e03b-47c1-a1d6-f21de6f2e867" />
+
 *Galaxy View where the Planets exist*
 
 <img width="1920" height="1080" alt="galaxy_view2" src="https://github.com/user-attachments/assets/895d3cd9-3f61-40dd-8d0d-2b5c45ea6880" />
+
 *Universe View, where the Galaxies exist*
 
 <img width="1920" height="1080" alt="galaxy_view2" src="https://github.com/user-attachments/assets/12fdaeea-f417-4e80-8fed-af47ae0e4f1d" />
+
 *UI when you click a Galaxy on the Universe*
 
