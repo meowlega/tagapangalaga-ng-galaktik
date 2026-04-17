@@ -110,5 +110,32 @@ Lets get to the heart on **why this project is really important**. I have an All
 
 <img width="811" height="570" alt="highwinrate" src="https://github.com/user-attachments/assets/710ccdc8-98dc-4feb-8efc-7b4fb134e909" />
 
+## Planet Placement Mechanics
 
+In Wars, **The main Planet, or Planet #1 is always shown and available to attack**, Both enemy and us can attack the main Planet, as long as the Player is not online. Naturally, if the enemy is good, we both clears all main planet, and we get equal amount of *Stars*. But thats about it, because both us and enemy constantly and dilligently attacks main planet every 3 hours, the *Stars* are usually *tied*.
+
+How to remove that *tie?*, **Attack the other Planets, or colonized Planets of enemy player**. Meaning, the wars are cat and mouse. If you are stupid enough to put your Planet #1 and Planet #2 in the same Galaxy (1,1), then the enemy could attack 2 Planets of yours every 3 hours, *leading to Star advantage!*, but what if they found even more Planets, as long as the Planets are found and enemy is dilligently doing their best to destroy it, then they will have a very big advantage.
+
+War duration is always *3 days*, so the Alliance with the most Stars at the end of that duration, Wins. *There is no tie* in this game. There is some complex rules about it but at the end, its always Win or Loss.
+
+One strategy to think and adapt is for us to put different Planets of ours far from each other in the Universe coordinate plane. One might do it like this:
+
+Planet #1 Andromeda (1,1)
+Planet #2 Elmer (200, 19)
+
+As you can see, Planet #1 and #2 are so ridiculously far apart, even if the enemy scan to click every single galaxies from X: 1 to 200, it will take them *hours* just to do that. Not to mention you could also put other of your Planets anywhere.
+
+Planet #3 Cocak (1000, 700)
+Planet #4 Mintara (72, 890)
+Planet #5 Jacakds (322, 256)
+...
+And so on ..
+
+The more spaced your Planets are, and random your Planets, the **Harder it is to find in Wars**. If one Alliance really wanna win this war, they would spend a considerable amount of time to find the Planets of their enemy.
+
+Now thats inefficient. Even me, I couldn't care less to click that damn Galaxies one by one and note all the Planets inside it for future reference. But we are competitive in War and would like not to lose if possible. Thats why I proposed a plan, **to somehow automate the collections of all planets in the universe**. This proves to be an endearing task for me.
+
+Also, as you know, Alliance members can also help you attack a single Planet of enemy, well depending on your strategies. A member might have maxed our anti defense troops, so he/she might do well better at clearning defenses at planet, and your job is cleaning.
+
+Now that the stage is setup, and you have a somewhat clear understanding on what it looks like to play the game, I can now safely tackle on the *steps* i did to make this thing a reality.
 
