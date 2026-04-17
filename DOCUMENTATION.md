@@ -123,14 +123,19 @@ War duration is always *3 days*, so the Alliance with the most Stars at the end 
 One strategy to think and adapt is for us to put different Planets of ours far from each other in the Universe coordinate plane. One might do it like this:
 
 Planet #1 Andromeda (1,1)
+
 Planet #2 Elmer (200, 19)
 
 As you can see, Planet #1 and #2 are so ridiculously far apart, even if the enemy scan to click every single galaxies from X: 1 to 200, it will take them *hours* just to do that. Not to mention you could also put other of your Planets anywhere.
 
 Planet #3 Cocak (1000, 700)
+
 Planet #4 Mintara (72, 890)
+
 Planet #5 Jacakds (322, 256)
+
 ...
+
 And so on ..
 
 The more spaced your Planets are, and random your Planets, the **Harder it is to find in Wars**. If one Alliance really wanna win this war, they would spend a considerable amount of time to find the Planets of their enemy.
@@ -144,7 +149,9 @@ Now that the stage is setup, and you have a somewhat clear understanding on what
 ## Goals
 
 Goal #1 To automate finding Planets
+
 Goal #2 To *time* or have a countdown, everytime a Planet is destroyed, should be shared by all teammates. Also a database for all found Planets.
+
 Goal #3 To present all of this information in a nice way, i.e. GUI
 
 What do I know? 1st, this is a **Flash Game**, a game played in Browser, although *Adobe Flash* is already discontinued back in 2020, lots of emulators still exist, but thats only for offline games. For a game like Galaxy Life, a special browser must be used, A browser that can play Flash Games.
