@@ -166,6 +166,7 @@ Just like that, I got a hand on the *Source Code* of the game. But first, I trie
 
 
 <img width="504" height="870" alt="fiddler1" src="https://github.com/user-attachments/assets/61da2b71-c802-455e-8511-d71536db3d45" />
+
 *Fiddler Classic*
 
 Then I got into working, normally, if a Player is scanning the Universe, they will do this kind of steps.
