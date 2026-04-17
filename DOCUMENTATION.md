@@ -103,3 +103,12 @@ Here's whats interesting, suppose you really hate that damn Player, you could us
 Also, because you attacked 6 Planets, you basically robbed that guy 6x of their resource. And there's even better rule! you know *Training Camps*, where the trained units stays? well .. **if training camp gets destroyed in attack, you lose all trained troops in that camp**, and when you come back, the ones will go out and fill the Training Camps are the ones you *queued*, and then you already have no *succeeding* troops to attack with.
 
 This game can be grindy, cruel, competitive, but thats why I love it! I am a competitive person, same with my friends. I hope you understand the crazy mechanics of this game above, there's more but no need to deep dive really.
+
+Alliances and Wars. In Clash of Clans, you can only attack 2x in Wars, but as I said in Galaxy Life, you could attack and destroy a Planet as many times as you can, the planet regeneration rules apply. In *Wars*, if you destroy a Planet, you get *Stars*, simple right? but what if that destroyed planet comes back again in 3 hours?, then you can destroy that Planet again and *earn even more Stars!*.
+
+Lets get to the heart on **why this project is really important**. I have an Alliance inside this game named *Pinoy Warriors*. At the time I joined, I cursed you not we are **300 Wins & 2 Loss**. That is 99% winrate. We are legit all try hard, but as time goes on, it is really taxing on trying to keep tabs on the game. I want to make something that will help us gain an advantage while not being getting burnt out in game. This game, if played correctly, really tooks lots of free time of yours.
+
+<img width="811" height="570" alt="highwinrate" src="https://github.com/user-attachments/assets/710ccdc8-98dc-4feb-8efc-7b4fb134e909" />
+
+
+
