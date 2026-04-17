@@ -163,3 +163,55 @@ So basically I got the *Flash Browser* thing, it is an open source so its well, 
 Because this is a Internet thing, one thing I know is that it uses **packets** to do the talking to the server. So I plan to use **Wireshark** for packet sniffing, but I am retarded and haven't really explored that software much. What I used is a little bit easier GUI packet sniffer called **Fiddler Classic**. This software can zero out a single application, which for my case, Flash Browser, then sniff all the incoming and outgoing packets, even all the *Elements and Files* being downloaded to browser.
 
 Just like that, I got a hand on the *Source Code* of the game. But first, I tried checking for now. I hop on to the game, then did a bunch of thing like *what kind of packet do i recieve if i do a click or a command ingame*. After a bunch of experimenting, I came to a conclusion that all the ingame packets are *Encrypted*, and I also cannot fake send my own packets because everything is *Server Sided*. All I can do is **Read the receiving packet**, so I focused on that.
+
+
+<img width="504" height="870" alt="fiddler1" src="https://github.com/user-attachments/assets/61da2b71-c802-455e-8511-d71536db3d45" />
+*Fiddler Classic*
+
+Then I got into working, normally, if a Player is scanning the Universe, they will do this kind of steps.
+
+Click a Galaxy
+
+Note down all the Planets inside, maybe on excel
+
+Quit and then Click another Galaxy
+
+Manually note down all the Planets inside excel again
+
+Also don't forget to include the info about the Galaxy Coordinates
+
+Yeah something like that, if you do that, you will die out of boredom, although some Top Alliance did indeed do this, but at best they only logged like 1/4 of the whole Universe.
+
+First thing to do is how to **Detect Galaxies** on my screen, because well, yeah I need to be able to click them don't I? Since the Galaxies look like kinda unique in screen and the background are kinda plain, I thought I could just do a simple *Pixel Check* using *PyAutoGUI*.
+
+Well as you can see, I got this funny script, and tested it. Using *mss* for automatic screenshot and *PyAutoGUI*, I set up a script where it would screenshot my whole screen, calculate pixel and then mark them as a dot with a label. Ofcourse if the dots are accurate, I can easily transform that as a click.
+
+Well oh my .. no mattery how much optimization I do, the background noise is just really that bad. I cannot accurately single out an Individual galaxies, multiple possible points appear in a single Galaxy, and even in the spots where there is no Galaxy, because on my Pixel check, some pixels there do align with my script, making it having ghost Galaxies or whatever, like the script determines there's a Galaxy there because a single noise Pixel adhere to my script logic, even tho there's no Galaxy there.
+
+<img width="1919" height="1079" alt="Screenshot 2025-07-15 232451" src="https://github.com/user-attachments/assets/4246065d-793d-47f0-be12-8c030546b6e7" />
+
+<img width="314" height="256" alt="Screenshot 2025-07-15 232524" src="https://github.com/user-attachments/assets/72758f47-40f5-44d3-a0a5-e8e4522b2e17" />
+
+<img width="289" height="244" alt="Screenshot 2025-07-15 232538" src="https://github.com/user-attachments/assets/14ef2fd8-4a59-4fc0-89e6-11c10797b8f3" />
+
+Now I bring the big guns, **YOLO** AI. Why not I just train a simple Image detector to detect this damn Galaxies? The memory footprint is low, and it could run on my PC using CPU just fine, so I just did that.
+
+I gathered 20 images for preliminary test, but to be more super accurate, I added 30 more images leading for it to 50 image training data. I used *LabelIMG*, well now it is called *Label Studio* but yeah I used that for annotating the Images. Basically in my screenshot, I put a border on each unique Galaxies, and marked them, saying to the AI "Hey bro, this is a Galaxy, remember this".
+
+After that I got this script to train the YOLO AI. There's alot of trial and error in my end. First I really tried the smallest model, but it just doesn't work, then the 2nd to the smallest, works 50/50. Then I settled on Medium model, which works 100% of the time. I used this script to train the AI, I mean no need to explain them no? I also used my CPU for training because for some reasons *CUDA* doesn't work in my damn laptop, even tho I have NVIDIA GTX 1650.
+
+<img width="1420" height="724" alt="Screenshot 2025-07-16 123857" src="https://github.com/user-attachments/assets/761dab5a-edce-4b73-b883-e6cc9407a40a" />
+
+<img width="1920" height="1080" alt="Screenshot 2025-07-16 125327" src="https://github.com/user-attachments/assets/0e5fe819-2803-48f7-93a8-88057aa7bd5c" />
+
+<img width="1920" height="1080" alt="Screenshot 2025-07-16 223234" src="https://github.com/user-attachments/assets/11405a80-ae45-4d35-a2d4-8f7a25bd7526" />
+
+<img width="1920" height="1032" alt="Screenshot 2025-07-16 223623" src="https://github.com/user-attachments/assets/dbd72229-796b-4308-ba81-ed597a2d0a6d" />
+
+I got it on 25 epoch, should be enough
+
+Then I went into debugging, like checking the accuracy of detection, and yeah it works. Detecting Galaxies is now Solved.
+
+Now the next problem is how the hell do I note down Player data? Glad you asked :D. As you can see, every time I do an action *click a Galaxy*, the server shoves me back the *Packets* in *Encrypted Form*. Everytime I click a Galaxy, a packet is being sent back to me. If only I could *decrypt* that damn packet then everything will go smoothly.
+
+## Reverse Engineering?
