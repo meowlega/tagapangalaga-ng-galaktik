@@ -141,3 +141,18 @@ Also, as you know, Alliance members can also help you attack a single Planet of 
 
 Now that the stage is setup, and you have a somewhat clear understanding on what it looks like to play the game, I can now safely tackle on the *steps* i did to make this thing a reality.
 
+## Goals
+
+Goal #1 To automate finding Planets
+Goal #2 To *time* or have a countdown, everytime a Planet is destroyed, should be shared by all teammates. Also a database for all found Planets.
+Goal #3 To present all of this information in a nice way, i.e. GUI
+
+What do I know? 1st, this is a **Flash Game**, a game played in Browser, although *Adobe Flash* is already discontinued back in 2020, lots of emulators still exist, but thats only for offline games. For a game like Galaxy Life, a special browser must be used, A browser that can play Flash Games.
+
+## Packet Sniffing
+
+So basically I got the *Flash Browser* thing, it is an open source so its well, its good. Then the game itself is played on Online. Because of lots of experience, I just inevitably know that this kind of Online Games are easy to cheat with, because their source code is bare laid off when you know what you are doing. Tho I cannot stop them to obfuscate the code, but this time, they didn't even try.
+
+Because this is a Internet thing, one thing I know is that it uses **packets** to do the talking to the server. So I plan to use **Wireshark** for packet sniffing, but I am retarded and haven't really explored that software much. What I used is a little bit easier GUI packet sniffer called **Fiddler Classic**. This software can zero out a single application, which for my case, Flash Browser, then sniff all the incoming and outgoing packets, even all the *Elements and Files* being downloaded to browser.
+
+Just like that, I got a hand on the *Source Code* of the game. But first, I tried checking for now. I hop on to the game, then did a bunch of thing like *what kind of packet do i recieve if i do a click or a command ingame*. After a bunch of experimenting, I came to a conclusion that all the ingame packets are *Encrypted*, and I also cannot fake send my own packets because everything is *Server Sided*. All I can do is **Read the receiving packet**, so I focused on that.
