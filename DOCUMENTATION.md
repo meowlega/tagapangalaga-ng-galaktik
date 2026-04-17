@@ -215,3 +215,49 @@ Then I went into debugging, like checking the accuracy of detection, and yeah it
 Now the next problem is how the hell do I note down Player data? Glad you asked :D. As you can see, every time I do an action *click a Galaxy*, the server shoves me back the *Packets* in *Encrypted Form*. Everytime I click a Galaxy, a packet is being sent back to me. If only I could *decrypt* that damn packet then everything will go smoothly.
 
 ## Reverse Engineering?
+
+So yeah it took alot of time, but I reversed engineered the Source code, or should I say i read the Source Code, trying to find anything related to Packets, and then I found this funny *Bitwise Operation*. I made a python code counterpart, and see if it successfully decode the packet.
+
+<img width="1920" height="1080" alt="code" src="https://github.com/user-attachments/assets/41ea2ac4-5a24-4c25-962c-f27d71497a1d" />
+
+*Encrypt and Decrypt Logic*
+
+```
+def simple_string_decrypt(obfuscated: str) -> str:
+    output = ""
+    for i, ch in enumerate(obfuscated):
+        code = ord(ch)
+        if 32 <= code < 128:
+            low_bits = (code ^ (i + 3)) & 0x1F
+            code = (code & 0xFFFFFFE0) | low_bits
+        output += chr(code)
+    return output
+```
+
+I used fiddler to download every sample encrypted packets I can get, and then run a python script to them to output a result. And the results are amazing! **All data for that Single Galaxy, like Name and Planet number are there**. And it is in *JSON* too, so easy parsing.
+
+Now I need to find a damn way to instead of manually downloading sample packets from fiddler, I need a script to automatically save all the packets.
+
+I still didn't use *Wireshark*, but to be consistent with being all in *Python*, I used *mitmproxy*. It functions like Fiddler, but on a CLI. I made a script so that everytime *mitmproxy* found a packet that comes from this specific browser, it will automatically save them in a specific file path destination.
+
+So now, my approach is this:
+
+Use *mss* to screenshot my whole screen
+
+Use *YOLO AI* to *predict* where to click Galaxies
+
+Use *PyAutoGUI* to click Galaxies, and navigate to the game
+
+Use *mitmproxy* to *save* all the packets that comes while I interact in the game
+
+Run the loop.
+
+Well, I will just make a graphic for it for easy to understand. Also the script *packet_dec.py* or packet decode is really 99% fool proof, everytime a *mss* captures a screenshot, it will be fed to *YOLO AI*, then it will spit out the coordinates on where to click, and how many of them. Then *PyAutoGUI* will take care and do the clicking, now what happens if *all the Galaxies are already clicked on my screen?*, if that happens, then I just made a script to drag the screen from left to right, making it look like i am moving in a different part of Universe. like fro X: 10 Y: 10, to X: 20 Y: 10.
+
+And also, instead of doing the *sleep trick*, I also included in the script that, you know that in my mitmproxy code that a new file is being generated everytime a packet is saved? then what I did is because when I click a Galaxy, there is a *UI* to be closed, I made the script watch the file, so that if there is a new file, the *UI* should be immediately closed.
+
+This is important, because clicking each Galaxies has loading delays, one Galaxy might take 1 second to load, i.e. send packets to me, and some Galaxies takes up to 10 seconds to load. Instead of making the logic *sleep(15000)* or wait 15 seconds before closing the UI and hoping that the packet is already saved, I just opted for this logic for efficiency.
+
+I mean, I really did a great job of doing lots of error handling. Unless you definetly mess up the code or do something funny ingame, the script can run indefinetly.
+
+Also I used like 4 VM in my PC, because even if its all automated, the Universe is still damn vast, and I don't have friends or even alliance member that knows a thing or two about computers. It took 2 weeks to scan and get all the *Encrypted* packets. Now it is ready to be parsed with my *Bitwise Operation Decriptor*
