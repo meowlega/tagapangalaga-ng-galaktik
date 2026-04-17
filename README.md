@@ -145,3 +145,37 @@ graph TD
     class A,B,C,AdjustMap,WaitPixel,F,G,H,K,Q local;
     class Parse,SendWait,FetchAlly,WarCheck,SimpleStatus,FetchEnemy,FetchUsers,MapPlanets,QueryDB,CalcStats,SortMembers,FormatReport,ChunkCheck,SplitChunks,SendChunks edge;
 ```
+
+## Screenshots
+
+<img width="921" height="2048" alt="image" src="https://github.com/user-attachments/assets/d01e0101-80ba-4520-9f01-0362b254616a" />
+
+<img width="422" height="576" alt="image" src="https://github.com/user-attachments/assets/226a4d60-a8c7-48c7-9e08-c5dc9b69ee4f" />
+
+<img width="408" height="526" alt="image" src="https://github.com/user-attachments/assets/db1c0151-cdbb-4c3c-9089-b4c6d50e8f56" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/550b07e7-2302-40dc-969e-2986c71f61a6" />
+
+<img width="440" height="592" alt="image" src="https://github.com/user-attachments/assets/29af1f11-61ac-40e9-b3b4-9e963ae5f1da" />
+
+<img width="394" height="529" alt="image" src="https://github.com/user-attachments/assets/001f51db-b88e-45d7-b6e5-b3118be87007" />
+
+<img width="574" height="682" alt="image" src="https://github.com/user-attachments/assets/70c8d760-7473-43e0-8839-be5ae50a1b24" />
+
+<img width="1237" height="767" alt="image" src="https://github.com/user-attachments/assets/5747b0c5-5cde-4ef3-a712-0fcb0730ce1f" />
+
+<img width="388" height="576" alt="image" src="https://github.com/user-attachments/assets/0b293768-a20d-4631-ac05-a5c03d6f4a32" />
+
+<img width="983" height="2048" alt="image" src="https://github.com/user-attachments/assets/c1739c36-4409-40cc-8e8b-808b219b0cc2" />
+
+Endnote:
+
+Trying to use this software is really kinda complicated .. I suggest if you want to try, then go here: https://www.facebook.com/messages/t/727991440400675 and then type **Pinoy Warriors**.
+For the flashbrowser to be used, you really need a Game account, download flashbrowser, tweak some stuff and yeah ..
+
+Maybe you can try this, but it will get flagged because I don't have signature .. here: https://www.dropbox.com/scl/fi/fi8xilekv5gcgd34kdinz/Redhorse-Portable-v1.0.exe?rlkey=h99fk90vo8xj48tyiqfjoaqqe&e=1&st=bt6y1pzh&dl=0
+
+I guess I will just Properly Demo this at the end of the semester :D
+
+
+
