@@ -255,10 +255,12 @@ Run the loop.
 
 Well, I will just make a graphic for it for easy to understand. Also the script *packet_dec.py* or packet decode is really 99% fool proof, everytime a *mss* captures a screenshot, it will be fed to *YOLO AI*, then it will spit out the coordinates on where to click, and how many of them. Then *PyAutoGUI* will take care and do the clicking, now what happens if *all the Galaxies are already clicked on my screen?*, if that happens, then I just made a script to drag the screen from left to right, making it look like i am moving in a different part of Universe. like fro X: 10 Y: 10, to X: 20 Y: 10.
 
-And also, instead of doing the *sleep trick*, I also included in the script that, you know that in my mitmproxy code that a new file is being generated everytime a packet is saved? then what I did is because when I click a Galaxy, there is a *UI* to be closed, I made the script watch the file, so that if there is a new file, the *UI* should be immediately closed.
+And also, instead of doing the *sleep trick*, I also included in the script that, you know that in my mitmproxy code that a new file is being generated everytime a packet is saved? then what I did is because when I click a Galaxy, there is a *UI* to be closed, I made the script watch the file, so that if there is a new file, the *UI* should be immediately closed. Honestly, I found a better way, I realized that as long as the *packet* doesn't load, the "x" button of UI will not appear, so for better logic, I just wait for the "x" button to appear, if it appears, 99% the packet is there and has been saved.
 
 This is important, because clicking each Galaxies has loading delays, one Galaxy might take 1 second to load, i.e. send packets to me, and some Galaxies takes up to 10 seconds to load. Instead of making the logic *sleep(15000)* or wait 15 seconds before closing the UI and hoping that the packet is already saved, I just opted for this logic for efficiency.
 
 I mean, I really did a great job of doing lots of error handling. Unless you definetly mess up the code or do something funny ingame, the script can run indefinetly.
 
 Also I used like 4 VM in my PC, because even if its all automated, the Universe is still damn vast, and I don't have friends or even alliance member that knows a thing or two about computers. It took 2 weeks to scan and get all the *Encrypted* packets. Now it is ready to be parsed with my *Bitwise Operation Decriptor*
+
+Well yeah, I just used the *eguls.py* script to put them into database, and then used *csv.py* to convert that db to CSV, and then I uploaded it on **Supabase**.
