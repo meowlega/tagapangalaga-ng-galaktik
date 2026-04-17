@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redhorse Bot</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* ================= COLORS & BASICS ================= */
+    * { box-sizing: border-box; user-select: none; }
+    :root {
+      --bg-dark: #121212; --bg-panel: #1e1e1e; --text-main: #e0e0e0;
+      --ally-color: #00ff88; --enemy-color: #ff6666;
+      --accent-gold: #ffd700; --accent-blue: #4db8ff; --accent-purple: #bf5af2;
+      --text-dim: #999; --text-darker: #555;
+      --hq-red: #ff6666; --hq-orange: #ffcc66; --hq-yellow: #ffff66; --hq-green: #66ff66; --timer-red: #ff8888;
+      --font-mono: 'Consolas', 'Monaco', monospace;
+    }
+    
+    body { margin: 0; padding: 0; background-color: var(--bg-dark); font-family: var(--font-mono); font-size: 14px; color: var(--text-main); overflow: hidden; }
+    
+    .war-list { 
+        width: 100vw; height: 100vh; 
+        background-color: var(--bg-dark); 
+        border: none; display: flex; flex-direction: column; overflow: hidden; position: relative; 
+    }
+
+    /* SCROLLBARS */
+    ::-webkit-scrollbar { width: 5px; height: 0px; background: transparent; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+    
+    /* NAV TABS */
+    .main-tabs { display: flex; background: #111; border-bottom: 1px solid #333; flex-shrink: 0; z-index: 5; }
+    .tab-item { flex: 1; text-align: center; padding: 10px 0; font-size: 12px; color: #666; cursor: pointer; border-right: 1px solid #222; transition: all 0.2s; }
+    .tab-item:hover { background: #1a1a1a; color: #bbb; }
+    .tab-item.active { background: var(--bg-panel); color: var(--accent-blue); font-weight: bold; border-bottom: 2px solid var(--accent-blue); }
+    
+    #content-area { flex-grow: 1; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+    
+    /* ================= VISUAL CLUTTER TOGGLES ================= */
+    .hide-ids .m-id, .hide-ids .ev-id, .hide-ids .p-id span { display: none !important; }
+    .hide-total .m-total { display: none !important; }
+
+    /* ================= PEACE / IDLE STYLES ================= */
+    .idle-view { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: #666; animation: fadeIn 0.5s; }
+    .idle-title { font-size: 18px; color: var(--accent-gold); margin-bottom: 10px; font-weight: bold; }
+    .idle-stat { font-size: 14px; margin: 4px 0; color: #888; }
+    .idle-val { color: var(--text-main); font-weight: bold; }
+    .status-badge { background: #112211; color: #44aa44; border: 1px solid #225522; padding: 4px 12px; border-radius: 4px; font-size: 12px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ================= MISC TAB STYLES ================= */
+    .misc-container { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+    .misc-section { border: 1px solid #333; background: #1a1a1a; border-radius: 6px; padding: 15px; }
+    .misc-header { font-size: 12px; color: var(--accent-blue); font-weight: bold; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .setting-label { font-size: 13px; color: #ccc; }
+    .toggle-switch { position: relative; width: 40px; height: 20px; cursor: pointer; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 20px; }
+    .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: #777; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--accent-blue); }
+    input:checked + .slider:before { transform: translateX(20px); background-color: #fff; }
+    .time-btn-group { display: flex; border: 1px solid #444; border-radius: 4px; overflow: hidden; }
+    .time-btn { flex: 1; padding: 6px 12px; background: #222; color: #777; border: none; cursor: pointer; font-family: inherit; font-size: 12px; transition: all 0.2s; }
+    .time-btn.active { background: var(--accent-blue); color: #000; font-weight: bold; }
+    .time-btn:first-child { border-right: 1px solid #444; }
+
+    /* ================= HQ STYLES ================= */
+    .hq-view { display: flex; flex-direction: column; height: 100%; }
+    .hq-header { padding: 15px 12px; background: linear-gradient(to bottom, #1e1e1e, #080808); border-bottom: 1px solid #333; flex-shrink: 0; }
+    .war-info { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
+    .side-block { width: 35%; display: flex; flex-direction: column; overflow: hidden; }
+    .center-block { width: 30%; text-align: center; padding-bottom: 5px; }
+    
+    .team-name { font-size: 13px; font-weight: bold; margin-bottom: 2px; text-transform: uppercase; white-space: nowrap; }
+    .name-ally { color: var(--ally-color); text-shadow: 0 0 5px rgba(0, 255, 136, 0.2); }
+    .name-enemy { color: var(--enemy-color); text-align: right; text-shadow: 0 0 5px rgba(255, 51, 51, 0.2); }
+    
+    /* FIXED HEADER SPACING - Using Margins instead of Gap */
+    .stats-row { display: flex; font-size: 12px; color: #ccc; margin-bottom: 4px; }
+    .stats-row span { margin-right: 10px; } /* Space for Left side */
+    .stats-row span:last-child { margin-right: 0; }
+    
+    .stats-row.right { justify-content: flex-end; }
+    .stats-row.right span { margin-right: 0; margin-left: 10px; } /* Space for Right side */
+    
+    .stat-total { color: var(--accent-blue); font-weight: bold; } 
+    .team-score { font-size: 20px; color: var(--accent-gold); font-weight: bold; line-height: 1; }
+    .team-rate { font-size: 12px; color: #fff; font-weight: bold; margin-top: 5px; opacity: 0.9; }
+    .war-timer { font-size: 14px; color: var(--accent-purple); font-weight: bold; border: 1px solid #333; background: #111; padding: 4px 6px; border-radius: 4px; display: inline-block; }
+    .war-regen { font-size: 12px; font-weight: bold; color: #888; margin-bottom: 6px; display: block; white-space: nowrap; }
+    .war-gap { font-size: 12px; font-weight: bold; color: #999; margin-top: 6px; display: block; white-space: nowrap; }
+    .gap-lead { color: var(--ally-color); } .gap-trail { color: var(--enemy-color); }
+    
+    .bar-track { height: 8px; background: #222; border-radius: 4px; display: flex; overflow: hidden; border: 1px solid #333; }
+    .bar-fill-ally { background: var(--ally-color); height: 100%; transition: width 0.5s; }
+    .bar-fill-enemy { background: var(--enemy-color); height: 100%; transition: width 0.5s; }
+    
+    /* HQ LIST */
+    .hq-grid-wrapper { display: grid; grid-template-columns: 1fr 1fr; flex-grow: 1; overflow: hidden; }
+    .hq-col { overflow-y: auto; overflow-x: hidden; padding: 10px; height: 100%; }
+    .hq-col.left { border-right: 1px solid #222; }
+    .m-row { margin-bottom: 10px; border-bottom: 1px dotted #222; padding-bottom: 8px; }
+    .m-row:last-child { border-bottom: none; margin-bottom: 0; }
+    .m-top { display: flex; align-items: center; font-size: 13px; margin-bottom: 3px; }
+    
+    /* SPACING FIX - Explicit margins instead of flex-gap */
+    .m-top span { margin-right: 6px; }
+    .m-top span:last-child { margin-right: 0; }
+
+    .m-id { font-size: 11px; color: var(--text-darker); } 
+    .m-role { font-size: 11px; color: var(--text-dim); }
+    .m-name { white-space: nowrap; display: inline-block; vertical-align: bottom; }
+    
+    .m-data { display: flex; align-items: center; font-size: 13px; }
+    .m-live { color: var(--accent-gold); font-weight: bold; font-size: 14px; }
+    .m-total { color: var(--text-dim); margin-left: 6px; font-size: 12px; } 
+    
+    .hq-col.right .m-row { text-align: right; }
+    .hq-col.right .m-top { justify-content: flex-end; }
+    /* Right side spacing fix (reverse margin) */
+    .hq-col.right .m-top span { margin-right: 0; margin-left: 6px; }
+    .hq-col.right .m-data { justify-content: flex-end; }
+    .hq-col.right .m-total { margin-left: 0; margin-right: 6px; } 
+
+    /* ================= EVENTS STYLES ================= */
+    .events-list { flex-grow: 1; overflow-y: auto; padding: 10px; }
+    .event-row { font-family: var(--font-mono); font-size: 12px; border-bottom: 1px solid #222; padding: 10px 0; display: flex; align-items: center; color: #888; }
+    
+    /* SPACING FIX FOR EVENTS */
+    .event-row span { margin-right: 8px; }
+    .event-row span:last-child { margin-right: 0; }
+
+    .ev-time { color: #666; min-width: 65px; text-align: right; }
+    .ev-name-ally { color: var(--ally-color); font-weight: bold; }
+    .ev-name-enemy { color: var(--enemy-color); font-weight: bold; }
+    .ev-id { font-size: 10px; color: #444; }
+    .ev-gain { color: #999; }
+    .ev-pts { color: var(--accent-gold); font-weight: bold; }
+    
+    /* PAGINATION FIX */
+    .pagination { display: flex; justify-content: center; padding: 8px; border-top: 1px solid #333; background: #111; }
+    .btn-page { background: #222; color: #aaa; border: 1px solid #444; padding: 4px 10px; cursor: pointer; border-radius: 3px; font-size: 11px; }
+    .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
+    /* Force spacing via margin */
+    .pagination button, .pagination span { margin: 0 10px; }
+
+    /* ================= ENEMIES STYLES ================= */
+    .enemies-wrapper { display: flex; flex-direction: column; height: 100%; }
+    .enemies-list { overflow-y: auto; flex-grow: 1; padding-bottom: 10px; }
+    .controls { background: var(--bg-panel); padding: 10px; border-bottom: 1px solid #444; z-index: 100; position: relative; }
+    .grid-row-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 4px; }
+    .grid-row-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 10px; }
+    .action-row { display: flex; gap: 4px; }
+    .btn-filter, .btn-edit, .btn-coord { background: #2a2a2a; border: 1px solid #444; color: #999; height: 30px; cursor: pointer; font-family: inherit; border-radius: 3px; display: flex; align-items: center; justify-content: center; transition: all 0.1s; font-size: 13px; position: relative; }
+    .btn-filter:hover { background: #333; color: #fff; }
+    .btn-filter.active { background: var(--accent-blue); color: #000; border-color: var(--accent-blue); font-weight: bold; box-shadow: 0 0 8px rgba(77, 184, 255, 0.4); }
+    .btn-coord.active { background: var(--accent-purple); color: #000; box-shadow: 0 0 8px rgba(191, 90, 242, 0.4); }
+    .btn-edit.active { background: var(--accent-gold); color: #000; box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
+    .btn-wide { flex: 1; }
+    .btn-coord { flex: 0 0 40px; color: var(--accent-purple); font-size: 18px; }
+    .btn-edit { flex: 0 0 40px; color: var(--accent-gold); font-size: 16px; }
+    
+    .player-block { padding: 8px 10px; border-bottom: 1px solid #333; }
+    .player-header { color: var(--accent-blue); font-weight: bold; font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; height: 30px; }
+    
+    .planet-row { display: grid; grid-template-columns: 20px 40px 40px 40px 25px 25px 1fr; align-items: center; height: 32px; border-bottom: 1px solid #222; gap: 2px; }
+    .planet-row:hover { background-color: #1a1a1a; }
+    .col-center { text-align: center; display: flex; justify-content: center; align-items: center; height: 100%; }
+    .status-indicator { width: 8px; height: 8px; border-radius: 50%; cursor: help; }
+    .alive { background-color: var(--ally-color); box-shadow: 0 0 6px var(--ally-color); }
+    .dead { background-color: var(--enemy-color); box-shadow: 0 0 6px var(--enemy-color); }
+    .hq-red { color: var(--hq-red); font-weight: bold; font-size: 15px; }
+    .hq-orange { color: var(--hq-orange); font-weight: bold; }
+    .hq-yellow { color: var(--hq-yellow); }
+    .hq-green { color: var(--hq-green); }
+    .btn-play { background: transparent; color: var(--accent-blue); border: none; cursor: pointer; font-size: 10px; width: 100%; height: 100%; }
+    .action-area { display: flex; justify-content: flex-end; align-items: center; gap: 5px; height: 100%; padding-right: 5px; }
+    .btn-action { border: none; font-size: 11px; cursor: pointer; border-radius: 3px; font-weight: bold; height: 22px; display: flex; align-items: center; justify-content: center; }
+    .btn-dead { background: #3a1111; color: #ffcccc; border: 1px solid #800000; padding: 0 6px; }
+    .btn-reset { background: #222; color: #aaa; border: 1px solid #444; width: 22px; }
+    .timer-text { color: var(--timer-red); font-size: 13px; font-weight: bold; margin-right: 4px; font-feature-settings: "tnum"; cursor: default; }
+    
+    .edit-input { width: 100%; height: 100%; background: transparent; border: 1px solid transparent; color: inherit; font-family: inherit; text-align: center; }
+    .edit-active .edit-input { border-bottom: 1px dotted #444; }
+    .edit-active .edit-input:focus { background: #222; border: 1px solid var(--accent-blue); outline: none; }
+    .input-error { border-bottom: 1px solid #ff4444 !important; background: rgba(50, 0, 0, 0.5) !important; color: #ff8888 !important; }
+    .btn-del { background: #331111; color: #ff4444; border: 1px solid #550000; width: 24px; height: 24px; }
+    .btn-save { background: #113311; color: #00ff88; border: 1px solid #005500; width: 24px; height: 24px; display: none; }
+    .row-dirty .btn-save { display: flex; animation: popIn 0.2s; }
+    @keyframes popIn { 0% { transform: scale(0); } 80% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    
+    .btn-add-header { background: transparent; border: 1px solid #335533; color: #44aa44; font-size: 18px; font-weight: bold; width: 26px; height: 26px; border-radius: 4px; cursor: pointer; display: none; align-items: center; justify-content: center; line-height: 1; margin-right: 15px; }
+    .edit-active .btn-add-header { display: flex; }
+    
+    #global-tooltip { position: fixed; background: rgba(0, 0, 0, 0.95); color: #fff; padding: 5px 10px; font-size: 11px; border: 1px solid #555; border-radius: 4px; pointer-events: none; z-index: 999999; display: none; white-space: nowrap; box-shadow: 0 4px 15px rgba(0,0,0,0.8); transform: translate(-50%, -130%); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <div id="global-tooltip"></div>
+  <div class="war-list" id="main-app">
+    <div class="main-tabs">
+      <div class="tab-item active" id="tab-hq" onclick="switchTab('hq')">Headquarters</div>
+      <div class="tab-item" id="tab-enemies" onclick="switchTab('enemies')">Enemies</div>
+      <div class="tab-item" id="tab-events" onclick="switchTab('events')">Events</div>
+      <div class="tab-item" id="tab-misc" onclick="switchTab('misc')">Misc.</div>
+    </div>
+    <div id="content-area">
+      <div style="padding:20px;text-align:center;color:#666;">Initializing Data Stream...</div>
+    </div>
+  </div>
+
+<script>
+    const SUPA_URL = 'https://sakqwdekjiboabldyeom.supabase.co';
+    const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNha3F3ZGVramlib2FibGR5ZW9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5NDQ3ODgsImV4cCI6MjA3MzUyMDc4OH0._HOFBac97GOSfI-2LgH7oXkz3wDbi7stvPb7kUtZIZI'; 
+    const API_BASE = 'https://api.galaxylifegame.net/Alliances/get?name=';
+
+    if (typeof window.supabase === 'undefined') { throw new Error("Supabase library missing"); }
+    const supabaseClient = window.supabase.createClient(SUPA_URL, SUPA_ANON);
+
+    let currentTab = 'hq'; 
+    let activeLevels = [9, 8, 7, 6]; 
+    let showDead = false; 
+    let isEditMode = false; 
+    let isBlobMode = false;
+    let apiCache = { ally: null, enemy: null };
+    let eventsPage = 1;
+    const eventsPerPage = 100;
+    
+    let settings = { timeFormat: '24h', hideTotal: false, hideIds: false };
+
+    let warStats = { 
+        isInWar: false, 
+        allyScore: 0, allyName: "Loading...", enemyScore: 0, enemyName: "Loading...", 
+        startTime: null, 
+        allyRegenVal: 3, enemyRegenVal: 3, allyTotal: "0", enemyTotal: "0", 
+        allyRecord: "0W 0L", enemyRecord: "0W 0L", allyRate: "Calc...", enemyRate: "Calc..." 
+    }; 
+    
+    let allyMembers = [];
+    let enemyMembers = [];
+    let enemyPlayersWithPlanets = [];
+    let liveEvents = [];
+    let activeTimers = [];
+
+    async function init() {
+        console.log("🚀 Starting Up...");
+        loadSettings();
+        
+        const { data: state } = await supabaseClient.from('allianceState').select('*').single();
+        if(state) {
+            warStats.isInWar = state.isInWar;
+            if(state.ally_regen) warStats.allyRegenVal = state.ally_regen;
+            if(state.enemy_regen) warStats.enemyRegenVal = state.enemy_regen;
+            if(state.warStartTime) warStats.startTime = new Date(state.warStartTime);
+            try {
+                const [allyRes, enemyRes] = await Promise.all([
+                    fetch(`${API_BASE}${encodeURIComponent(state.myAllianceName)}`),
+                    fetch(`${API_BASE}${encodeURIComponent(state.opponentAllianceId)}`)
+                ]);
+                apiCache.ally = await allyRes.json();
+                apiCache.enemy = await enemyRes.json();
+            } catch (e) { console.error("API Error", e); }
+        }
+        
+        await loadWarData();
+        await loadEvents(1); 
+        await updateHourlyRates();
+        render();
+        setInterval(updateLiveElements, 1000); 
+    }
+
+    async function loadWarData() {
+        try {
+            const { data: state } = await supabaseClient.from('allianceState').select('*').single();
+            if (state) {
+                warStats.isInWar = state.isInWar;
+                if(state.warStartTime) warStats.startTime = new Date(state.warStartTime);
+                if(state.ally_regen) warStats.allyRegenVal = state.ally_regen;
+                if(state.enemy_regen) warStats.enemyRegenVal = state.enemy_regen;
+            }
+
+            if (warStats.isInWar) {
+                const { data: scores } = await supabaseClient.from('allianceStatus').select('*');
+                if(scores) {
+                    const allies = scores.find(x => x.isAlly);
+                    const enemies = scores.find(x => !x.isAlly);
+                    if (allies) {
+                        warStats.allyScore = (allies.currentWarPoints - allies.initialWarPoints);
+                        warStats.allyName = allies.allianceName;
+                        warStats.allyTotal = formatBigNum(allies.currentWarPoints); 
+                    }
+                    if (enemies) {
+                        warStats.enemyScore = (enemies.currentWarPoints - enemies.initialWarPoints);
+                        warStats.enemyName = enemies.allianceName;
+                        warStats.enemyTotal = formatBigNum(enemies.currentWarPoints); 
+                    }
+                }
+                const { data: allMembers } = await supabaseClient.from('memberStatus').select('*');
+                if (allMembers) {
+                    allyMembers = processMemberList(allMembers.filter(m => m.isAlly), apiCache.ally?.Members);
+                    enemyMembers = processMemberList(allMembers.filter(m => !m.isAlly), apiCache.enemy?.Members);
+                    loadEnemyPlanets(); 
+                }
+            } else {
+                if(apiCache.ally) warStats.allyName = apiCache.ally.Name;
+            }
+            if (apiCache.ally) warStats.allyRecord = `${apiCache.ally.WarsWon}W ${apiCache.ally.WarsLost}L`;
+            if (apiCache.enemy) warStats.enemyRecord = `${apiCache.enemy.WarsWon}W ${apiCache.enemy.WarsLost}L`;
+            render();
+        } catch (err) { console.error(err); }
+    }
+
+    async function loadEnemyPlanets() {
+        if (isEditMode) return;
+
+        if(enemyMembers.length === 0) return;
+        const enemyIds = enemyMembers.map(m => m.id);
+        const [planetsRes, timersRes] = await Promise.all([
+            supabaseClient.from('planetsv2').select('*').in('account_Id', enemyIds),
+            supabaseClient.from('planet_timers').select('*').in('account_id', enemyIds)
+        ]);
+        
+        const planets = planetsRes.data || []; 
+        const activeTimers = timersRes.data || [];
+        
+        enemyPlayersWithPlanets = enemyMembers.map(member => {
+            const myPlanets = planets.filter(p => p.account_Id == member.id);
+            
+            // Check if they have a Main Planet (ID 1 in DB)
+            const hasMain = myPlanets.find(p => p.planet_Id === 1); 
+            
+            let finalPlanets = [...myPlanets];
+            
+            // FIX: If Main Planet is missing, ALWAYS add a ghost placeholder.
+            // Even if they have colonies (like axel17).
+            if (!hasMain) {
+                finalPlanets.unshift({ 
+                    id: null, 
+                    account_Id: member.id, 
+                    planet_Id: 1, 
+                    coord_X: 0, 
+                    coord_Y: 0, 
+                    HQ_Level: null 
+                });
+            }
+
+            let uiPlanets = finalPlanets.map(p => {
+                const timer = activeTimers.find(t => t.account_id == p.account_Id && t.planet_index == p.planet_Id);
+                return { 
+                    db_id: p.id, 
+                    id: p.planet_Id - 1, 
+                    x: p.coord_X, 
+                    y: p.coord_Y, 
+                    hq: p.HQ_Level, 
+                    deadUntil: timer ? new Date(timer.dead_until) : null, 
+                    isNew: false 
+                };
+            });
+            
+            uiPlanets.sort((a,b) => a.id - b.id);
+            return { ...member, planets: uiPlanets };
+        });
+        
+        if(currentTab === 'enemies' && !isEditMode) render();
+    }
+
+    async function loadEvents(page) {
+        eventsPage = page;
+        const start = (page - 1) * eventsPerPage;
+        const end = start + (eventsPerPage - 1);
+        const { data: events } = await supabaseClient.from('warEvents').select('*').order('created_at', { ascending: false }).range(start, end);
+        if(events) { liveEvents = events; if(currentTab === 'events') render(); }
+    }
+
+    async function updateHourlyRates() {
+        if(!warStats.isInWar) return;
+        const maxHours = Math.max(warStats.allyRegenVal, warStats.enemyRegenVal);
+        const lookbackTime = new Date(Date.now() - maxHours * 60 * 60 * 1000).toISOString();
+        const { data: events } = await supabaseClient.from('warEvents').select('*').gt('created_at', lookbackTime);
+        if(events) {
+            const allyIds = allyMembers.map(m => m.id.toString());
+            let allySum = 0; let enemySum = 0;
+            const now = new Date();
+            events.forEach(e => {
+                const hoursAgo = (now - new Date(e.created_at)) / (1000 * 60 * 60); 
+                if(allyIds.includes(e.memberId.toString())) {
+                    if (hoursAgo <= warStats.allyRegenVal) allySum += e.gainedWarPoints;
+                } else {
+                    if (hoursAgo <= warStats.enemyRegenVal) enemySum += e.gainedWarPoints;
+                }
+            });
+            warStats.allyRate = formatNum(Math.round(allySum / warStats.allyRegenVal)) + " / hr";
+            warStats.enemyRate = formatNum(Math.round(enemySum / warStats.enemyRegenVal)) + " / hr";
+            render();
+        }
+    }
+
+    function getTimerString() {
+        if (!warStats.startTime || !warStats.isInWar) return "--:--:--";
+        const now = new Date();
+        const elapsedMs = now - warStats.startTime;
+        const totalMs = 72 * 60 * 60 * 1000;
+        const remainingMs = totalMs - elapsedMs;
+        if (remainingMs <= 0) return "00:00:00";
+        const h = Math.floor(remainingMs / 3600000); 
+        const m = Math.floor((remainingMs % 3600000) / 60000); 
+        const s = Math.floor((remainingMs % 60000) / 1000);
+        return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function updateLiveElements() {
+        if(!warStats.isInWar) return;
+        const timerStr = getTimerString();
+        const timerEl = document.querySelector('.war-timer');
+        if (timerEl) timerEl.textContent = timerStr;
+    }
+
+    function loadSettings() {
+        const saved = localStorage.getItem('rh_settings');
+        if(saved) settings = JSON.parse(saved);
+    }
+    function saveSettings() {
+        localStorage.setItem('rh_settings', JSON.stringify(settings));
+        applyClutterClasses(); render();
+    }
+    function applyClutterClasses() {
+        const app = document.getElementById('main-app');
+        if(settings.hideIds) app.classList.add('hide-ids'); else app.classList.remove('hide-ids');
+        if(settings.hideTotal) app.classList.add('hide-total'); else app.classList.remove('hide-total');
+    }
+    function toggleSetting(key) { settings[key] = !settings[key]; saveSettings(); }
+    function setTimeFormat(fmt) { settings.timeFormat = fmt; saveSettings(); }
+    
+    function formatTime(dateStr) {
+        const d = new Date(dateStr);
+        if (settings.timeFormat === '12h') {
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+        }
+        return d.toLocaleTimeString([], { hour12: false });
+    }
+
+    function processMemberList(dbMembers, apiMembers) {
+        if (!dbMembers) return [];
+        let processed = dbMembers.map(dbMem => {
+            const apiMem = apiMembers ? apiMembers.find(a => a.Id == dbMem.memberId) : null;
+            let current = dbMem.currentWarPoints || 0; let initial = dbMem.initialWarPoints || 0;
+            if(initial > current) initial = current; 
+            let totalPoints = (apiMem && apiMem.TotalPoints != null) ? apiMem.TotalPoints : current;
+            return {
+                name: dbMem.memberName || "Unknown", id: dbMem.memberId,
+                roleCode: apiMem ? apiMem.AllianceRole : 2, role: getRoleName(apiMem ? apiMem.AllianceRole : 2),
+                delta: current - initial, rawTotal: totalPoints,
+                wp: (current - initial).toLocaleString(), total: formatNum(totalPoints) 
+            };
+        });
+        processed.sort((a, b) => {
+            if (b.delta !== a.delta) return b.delta - a.delta; 
+            if (a.roleCode !== b.roleCode) return a.roleCode - b.roleCode; 
+            return b.rawTotal - a.rawTotal; 
+        });
+        return processed;
+    }
+    function getRoleName(code) { if (code === 0) return "Gen"; if (code === 1) return "Capt"; if (code === 2) return "Priv"; return "Sold"; }
+    function formatNum(num) { return (num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+    function formatBigNum(num) { if(!num) return "0"; if(num > 1000000) return (num/1000000).toFixed(1) + "M"; if(num > 1000) return (num/1000).toFixed(1) + "K"; return num.toString(); }
+    function getOrdinal(n) { if (n == 0) return "Main Planet"; const s = ["th", "st", "nd", "rd"]; const v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]) + " Colony"; }
+    function formatTimer(ms) { const h = Math.floor(ms / 3600000); const m = Math.floor((ms % 3600000) / 60000); const s = Math.floor((ms % 60000) / 1000); return `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
+
+    const channel = supabaseClient.channel('live-war-room')
+    .on('postgres_changes', { event: '*', schema: 'public' }, (payload) => {
+        // BLOCKER: If user is editing, ignore ALL database updates.
+        if (isEditMode) return;
+
+        if (payload.table === 'allianceState') loadWarData(); 
+        if (warStats.isInWar) {
+            if (payload.table === 'memberStatus' || payload.table === 'allianceStatus') loadWarData();
+            if (payload.table === 'planetsv2' || payload.table === 'planet_timers') loadEnemyPlanets();
+            if (payload.table === 'warEvents' && payload.eventType === 'INSERT') {
+                updateHourlyRates();
+                if (eventsPage === 1) {
+                    liveEvents.unshift(payload.new); 
+                    if(liveEvents.length > eventsPerPage) liveEvents.pop();
+                    if(currentTab === 'events') render();
+                }
+            }
+        }
+    }).subscribe();
+
+    // ==================================================
+    //  RENDER FUNCTION: WITH SCROLL PRESERVATION
+    // ==================================================
+function render() {
+      // 1. CAPTURE SCROLL
+      const leftCol = document.querySelector('.hq-col.left');
+      const rightCol = document.querySelector('.hq-col.right');
+      const listContainer = document.querySelector('.enemies-list') || document.querySelector('.events-list');
+      
+      let scrollPos = { 
+          left: leftCol ? leftCol.scrollTop : 0,
+          right: rightCol ? rightCol.scrollTop : 0,
+          list: listContainer ? listContainer.scrollTop : 0
+      };
+      
+      const container = document.getElementById('content-area');
+      const app = document.getElementById('main-app');
+      
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.getElementById(`tab-${currentTab}`).classList.add('active');
+
+      if (isEditMode) app.classList.add('edit-active'); else app.classList.remove('edit-active');
+      applyClutterClasses();
+
+      if (currentTab === 'misc') container.innerHTML = getMiscHTML(); 
+      else if (!warStats.isInWar) container.innerHTML = getIdleHTML(); 
+      else if (currentTab === 'hq') container.innerHTML = getHQHTML();
+      else if (currentTab === 'enemies') container.innerHTML = getEnemiesHTML();
+      else if (currentTab === 'events') container.innerHTML = getEventsHTML();
+
+      // 2. RESTORE SCROLL (Fixed with Timeout to prevent jumping)
+      setTimeout(() => {
+          const newLeft = document.querySelector('.hq-col.left');
+          const newRight = document.querySelector('.hq-col.right');
+          const newList = document.querySelector('.enemies-list') || document.querySelector('.events-list');
+          
+          if(newLeft) newLeft.scrollTop = scrollPos.left;
+          if(newRight) newRight.scrollTop = scrollPos.right;
+          if(newList) newList.scrollTop = scrollPos.list;
+      }, 0);
+    }
+
+    function getMiscHTML() {
+        const is12h = settings.timeFormat === '12h';
+        return `
+        <div class="misc-container">
+            <div class="misc-section">
+                <div class="misc-header">General Settings</div>
+                <div class="setting-row">
+                    <span class="setting-label">Time Format</span>
+                    <div class="time-btn-group">
+                        <button class="time-btn ${!is12h ? 'active' : ''}" onclick="setTimeFormat('24h')">24h</button>
+                        <button class="time-btn ${is12h ? 'active' : ''}" onclick="setTimeFormat('12h')">12h</button>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Hide Total Warpoints</span>
+                    <label class="toggle-switch"><input type="checkbox" ${settings.hideTotal ? 'checked' : ''} onclick="toggleSetting('hideTotal')"><span class="slider"></span></label>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Hide Player IDs</span>
+                    <label class="toggle-switch"><input type="checkbox" ${settings.hideIds ? 'checked' : ''} onclick="toggleSetting('hideIds')"><span class="slider"></span></label>
+                </div>
+            </div>
+            <div class="misc-section">
+                <div class="misc-header">Automation Tools</div>
+                <div class="setting-row">
+                    <span class="setting-label">Edit Blobs</span>
+                    <label class="toggle-switch"><input type="checkbox" ${isBlobMode ? 'checked' : ''} onclick="toggleBlobSetup()"><span class="slider"></span></label>
+                </div>
+                <div style="font-size:11px; color:#555; margin-top:5px;">Search features coming in v1.1</div>
+            </div>
+        </div>`;
+    }
+
+    function getIdleHTML() {
+        const name = apiCache.ally ? apiCache.ally.Name : "Loading...";
+        const wp = apiCache.ally ? formatNum(apiCache.ally.WarPoints) : "---";
+        const won = apiCache.ally ? apiCache.ally.WarsWon : 0;
+        const lost = apiCache.ally ? apiCache.ally.WarsLost : 0;
+        return `<div class="idle-view"><div class="status-badge">● Peace Time</div><div class="idle-title">${name}</div><div class="idle-stat">Total War Points</div><div class="idle-val" style="font-size:20px;color:var(--accent-blue)">${wp}</div><br><div class="idle-stat">Battle Record</div><div class="idle-val">${won}W - ${lost}L</div><div style="margin-top:30px;font-size:11px;color:#444">Waiting for War Detection...</div></div>`;
+    }
+
+    function getHQHTML() { 
+      const diff = warStats.allyScore - warStats.enemyScore; 
+      const isLeading = diff >= 0;
+      const gapVal = formatNum(Math.abs(diff)); 
+      const gapClass = isLeading ? 'gap-lead' : 'gap-trail'; 
+      const sign = isLeading ? '+' : '-';
+      const label = isLeading ? 'Lead' : 'Trail';
+      const gapText = `${label}: ${sign} ${gapVal}`;
+      
+      const timeStr = getTimerString();
+
+      let allyListHTML = allyMembers.map(m => `<div class="m-row"><div class="m-top"><span class="m-name" style="color:var(--ally-color);font-weight:bold" data-tooltip="${m.name}">${m.name}</span><span class="m-id">(${m.id})</span><span class="m-role">${m.role}</span></div><div class="m-data"><span class="m-live" data-tooltip="Current Points">${m.wp}</span><span class="m-total" data-tooltip="Total Career Points">(${m.total})</span></div></div>`).join('');
+      let enemyListHTML = enemyMembers.map(m => `<div class="m-row"><div class="m-top"><span class="m-role">${m.role}</span><span class="m-id">(${m.id})</span><span class="m-name" style="color:var(--enemy-color);font-weight:bold" data-tooltip="${m.name}">${m.name}</span></div><div class="m-data"><span class="m-total" data-tooltip="Total Career Points">(${m.total})</span><span class="m-live" data-tooltip="Current Points">${m.wp}</span></div></div>`).join('');
+      
+      return `
+      <div class="hq-view">
+        <div class="hq-header">
+            <div class="war-info">
+                <div class="side-block" style="align-items:flex-start">
+                    <span class="team-name name-ally" data-tooltip="${warStats.allyName}">${warStats.allyName}</span>
+                    <div class="stats-row">
+                        <span data-tooltip="Win/Loss Record">${warStats.allyRecord}</span>
+                        <span class="stat-total" data-tooltip="Total War Points">${warStats.allyTotal}</span>
+                    </div>
+                    <span class="team-score" data-tooltip="Live War Score">${warStats.allyScore.toLocaleString()}</span>
+                    <span class="team-rate" data-tooltip="Points per Hour">${warStats.allyRate}</span>
+                </div>
+                <div class="center-block">
+                    <span class="war-regen" data-tooltip="Base Regeneration Time (Ally vs Enemy)">${warStats.allyRegenVal}h vs ${warStats.enemyRegenVal}h</span>
+                    <span class="war-timer" data-tooltip="Time Remaining">${timeStr}</span>
+                    <span class="war-gap ${gapClass}" data-tooltip="Score Difference">${gapText}</span>
+                </div>
+                <div class="side-block" style="align-items:flex-end">
+                    <span class="team-name name-enemy" data-tooltip="${warStats.enemyName}">${warStats.enemyName}</span>
+                    <div class="stats-row right">
+                        <span class="stat-total" data-tooltip="Total War Points">${warStats.enemyTotal}</span>
+                        <span data-tooltip="Win/Loss Record">${warStats.enemyRecord}</span>
+                    </div>
+                    <span class="team-score" style="text-align:right" data-tooltip="Live War Score">${warStats.enemyScore.toLocaleString()}</span>
+                    <span class="team-rate" style="text-align:right" data-tooltip="Points per Hour">${warStats.enemyRate}</span>
+                </div>
+            </div>
+            <div class="bar-track" data-tooltip="Evaluation Bar (Disabled)" style="background:#222; border:1px solid #333">
+                <div class="bar-fill-ally" style="width:50%; background:#333;"></div>
+                <div class="bar-fill-enemy" style="width:50%; background:#333;"></div>
+            </div>
+        </div>
+        <div class="hq-grid-wrapper">
+            <div class="hq-col left">${allyListHTML}</div>
+            <div class="hq-col right">${enemyListHTML}</div>
+        </div>
+      </div>`;
+    }
+
+    function getEventsHTML() {
+        if(liveEvents.length === 0) return `<div style="padding:20px;text-align:center;color:#444;">No events found</div>`;
+        const allyIds = allyMembers.map(m => m.id.toString());
+        let rows = liveEvents.map(e => {
+            const idStr = e.memberId.toString(); let isAlly = allyIds.includes(idStr);
+            let member = isAlly ? allyMembers.find(m => m.id == idStr) : enemyMembers.find(m => m.id == idStr);
+            let name = member ? member.name : "Unknown"; let nameClass = isAlly ? 'ev-name-ally' : 'ev-name-enemy';
+            let time = formatTime(e.created_at); 
+            return `<div class="event-row"><span class="ev-time">${time}</span><span class="${nameClass}">${name}</span><span class="ev-id">(${e.memberId})</span><span class="ev-gain">gained</span><span class="ev-pts">+${e.gainedWarPoints}</span><span>points.</span></div>`;
+        }).join('');
+        const controls = `<div class="pagination"><button class="btn-page" onclick="loadEvents(${eventsPage-1})" ${eventsPage <= 1 ? 'disabled' : ''}>Prev</button><span style="color:#666;font-size:11px;line-height:24px;">Page ${eventsPage}</span><button class="btn-page" onclick="loadEvents(${eventsPage+1})" ${liveEvents.length < eventsPerPage ? 'disabled' : ''}>Next</button></div>`;
+        return `<div style="display:flex;flex-direction:column;height:100%"><div class="events-list">${rows}</div>${controls}</div>`;
+    }
+
+    function getEnemiesHTML() {
+      const activeClass = (lvl) => activeLevels.includes(lvl) ? 'active' : ''; 
+      const aliveClass = !showDead ? 'active' : ''; 
+      const allClass = showDead ? 'active' : ''; 
+      const editClass = isEditMode ? 'active' : '';
+      
+      const toggleHtml = `<div style="display:flex;align-items:center;height:30px;background:#2a2a2a;border:1px solid #444;border-radius:3px;padding:0 5px;" data-tooltip="Toggle Blobs"><label class="toggle-switch" style="margin:0;"><input type="checkbox" ${isBlobMode ? 'checked' : ''} onclick="toggleBlobSetup()"><span class="slider"></span></label></div>`;
+      
+      const controlsHTML = `<div class="controls"><div class="grid-row-4"><button class="btn-filter ${activeClass(9)}" onclick="toggleLvl(9)" data-tooltip="Show SB 9">9</button><button class="btn-filter ${activeClass(8)}" onclick="toggleLvl(8)" data-tooltip="Show SB 8">8</button><button class="btn-filter ${activeClass(7)}" onclick="toggleLvl(7)" data-tooltip="Show SB 7">7</button><button class="btn-filter ${activeClass(6)}" onclick="toggleLvl(6)" data-tooltip="Show SB 6">6</button></div><div class="grid-row-5"><button class="btn-filter ${activeClass(5)}" onclick="toggleLvl(5)" data-tooltip="Show SB 5">5</button><button class="btn-filter ${activeClass(4)}" onclick="toggleLvl(4)" data-tooltip="Show SB 4">4</button><button class="btn-filter ${activeClass(3)}" onclick="toggleLvl(3)" data-tooltip="Show SB 3">3</button><button class="btn-filter ${activeClass(2)}" onclick="toggleLvl(2)" data-tooltip="Show SB 2">2</button><button class="btn-filter ${activeClass(1)}" onclick="toggleLvl(1)" data-tooltip="Show SB 1">1</button></div><div class="action-row"><button class="btn-filter btn-wide ${aliveClass}" onclick="toggleStatus('alive')" data-tooltip="Hide Destroyed">Alive</button><button class="btn-filter btn-wide ${allClass}" onclick="toggleStatus('all')" data-tooltip="Show All">All</button>${toggleHtml}<button class="btn-edit ${editClass}" onclick="toggleEditMode()" data-tooltip="Edit Coords">✎</button></div></div>`;
+      
+      let listHTML = '';
+      enemyPlayersWithPlanets.forEach((player, playerIdx) => {
+        const visiblePlanets = isEditMode ? player.planets : player.planets.filter(p => {
+          // FIX: Always show if HQ is unknown (?), regardless of active filters
+          if (p.hq == null) return true; 
+          
+          if (!activeLevels.includes(parseInt(p.hq))) return false;
+          const isDead = p.deadUntil && p.deadUntil > new Date(); 
+          if (!showDead && isDead) return false;
+          return true;
+        });
+        if (visiblePlanets.length === 0 && !isEditMode) return;
+        
+        let rows = '';
+        visiblePlanets.forEach((p, planetIdx) => {
+          const isDead = p.deadUntil && p.deadUntil > new Date(); 
+          const statusClass = isDead ? 'dead' : 'alive'; 
+          const dirtyClass = p.isNew ? 'row-dirty' : ''; 
+          
+          // DISPLAY LOGIC: Handle Null -> "?"
+          let hqDisplay = p.hq;
+          let hqColorClass = 'hq-green';
+          
+          if(p.hq == null) {
+              hqDisplay = "?";
+              hqColorClass = 'hq-yellow'; // Use Yellow for unknown
+          } else {
+              let val = parseInt(p.hq); 
+              if (val >= 8) hqColorClass = 'hq-red'; 
+              else if (val >= 6) hqColorClass = 'hq-orange'; 
+              else if (val == 5) hqColorClass = 'hq-yellow';
+          }
+
+          let content = '';
+          if (!isEditMode) {
+             let actions = `<button class="btn-action btn-dead" onclick="killPlanet(${player.id}, ${p.id})" data-tooltip="Mark as Dead">DEAD</button>`;
+             if(isDead) { const remaining = p.deadUntil - new Date(); actions = `<span class="timer-text">${formatTimer(remaining)}</span> <button class="btn-action btn-reset" onclick="resetPlanet(${player.id}, ${p.id})">↺</button>`; }
+             
+             content = `<div class="col-center"><div class="status-indicator ${statusClass}" data-tooltip="${isDead?'Dead':'Alive'}"></div></div><div class="col-center p-id" data-tooltip="${getOrdinal(p.id)}"><span>${p.id}</span></div><div class="col-center p-coord" data-tooltip="Coord X">${p.x}</div><div class="col-center p-coord" data-tooltip="Coord Y">${p.y}</div><div class="col-center"><button class="btn-play" onclick="triggerAutoType(${p.x}, ${p.y})" data-tooltip="Auto Input">▶</button></div><div class="col-center ${hqColorClass}" data-tooltip="HQ Level">${hqDisplay}</div><div class="action-area">${actions}</div>`;
+          } else {
+            // Edit Mode: Handle Null -> Empty Input
+            let val = p.hq == null ? "" : p.hq;
+            content = `<div class="col-center"><div class="status-indicator ${statusClass}"></div></div><input id="in-id-${playerIdx}-${planetIdx}" class="edit-input" value="${p.id}" oninput="checkChanges(${playerIdx}, ${planetIdx})"><input id="in-x-${playerIdx}-${planetIdx}" class="edit-input" value="${p.x}" oninput="checkChanges(${playerIdx}, ${planetIdx})"><input id="in-y-${playerIdx}-${planetIdx}" class="edit-input" value="${p.y}" oninput="checkChanges(${playerIdx}, ${planetIdx})"><div class="col-center"></div><input id="in-hq-${playerIdx}-${planetIdx}" class="edit-input ${hqColorClass}" value="${val}" placeholder="?" oninput="checkChanges(${playerIdx}, ${planetIdx})"><div class="action-area"><button class="btn-action btn-save" onclick="saveRow(${playerIdx}, ${planetIdx}, this)" data-tooltip="Save Changes">✔</button><button class="btn-action btn-del" onclick="deletePlanet(${playerIdx}, ${planetIdx})" data-tooltip="Delete">✖</button></div>`;
+          }
+          rows += `<div class="planet-row ${dirtyClass}" id="row-${playerIdx}-${planetIdx}">${content}</div>`;
+        });
+        listHTML += `<div class="player-block"><div class="player-header"><div style="display:flex; gap:10px; align-items:baseline;"><span data-tooltip="Name">${player.name}</span><span style="color:#666;font-size:12px;margin-left:10px;" class="p-id" data-tooltip="Player ID"><span>(${player.id})</span></span></div><div style="display:flex;align-items:center"><button class="btn-add-header" onclick="addPlanet(${playerIdx})">+</button><span style="font-size:12px;color:#888">${player.role}</span></div></div><div>${rows}</div></div>`;
+      });
+      return `<div class="enemies-wrapper">${controlsHTML}<div class="enemies-list">${listHTML}</div></div>`;
+    }
+
+    function toggleLvl(lvl) { if(activeLevels.includes(lvl)) activeLevels = activeLevels.filter(x=>x!=lvl); else activeLevels.push(lvl); render(); }
+    function toggleStatus(mode) { showDead = (mode === 'all'); render(); }
+    function toggleEditMode() { 
+        isEditMode = !isEditMode; 
+        
+        if (!isEditMode) {
+            // FIX: If we leave Edit Mode, force a reload.
+            // This wipes out any empty "Add" rows you clicked but didn't save.
+            loadEnemyPlanets(); 
+        } else {
+            render(); 
+        }
+    }
+    function toggleBlobSetup() { isBlobMode = !isBlobMode; if(window.parent && window.parent.toggleSetupBlobs) window.parent.toggleSetupBlobs(); render(); }
+    function triggerAutoType(x, y) { 
+        // SAFETY CHECK: Stop if user is editing
+        if (isBlobMode || isEditMode) {
+            alert("Please disable 'Edit Blobs' first!");
+            return;
+        }
+
+        if(window.parent && window.parent.runGalaxyAutopilot) {
+            window.parent.runGalaxyAutopilot(x, y); 
+        } else {
+            console.error("Not running inside Galaxy Pilot Browser!"); 
+        }
+    }
+    function validateInput(val, type) { const num = Number(val); if(isNaN(num)) return "Must be number"; if(type==='id' && (num < 0 || num > 11)) return "0-11"; if(type==='coord' && (num < 0 || num > 1200)) return "0-1200"; if(type==='hq' && (num < 1 || num > 9)) return "1-9"; return null; }
+    window.checkChanges = function(pIdx, plIdx) { const original = enemyPlayersWithPlanets[pIdx].planets[plIdx]; const pIdVal = document.getElementById(`in-id-${pIdx}-${plIdx}`).value; const xVal = document.getElementById(`in-x-${pIdx}-${plIdx}`).value; const yVal = document.getElementById(`in-y-${pIdx}-${plIdx}`).value; const hqVal = document.getElementById(`in-hq-${pIdx}-${plIdx}`).value; let hasError = false; const errId = validateInput(pIdVal, 'id'); const errX = validateInput(xVal, 'coord'); const errY = validateInput(yVal, 'coord'); const errHq = validateInput(hqVal, 'hq'); const dup = enemyPlayersWithPlanets[pIdx].planets.find((p, idx) => idx !== plIdx && p.id == pIdVal); const errDup = dup ? "Duplicate ID" : null; applyError(`in-id-${pIdx}-${plIdx}`, errId || errDup); applyError(`in-x-${pIdx}-${plIdx}`, errX); applyError(`in-y-${pIdx}-${plIdx}`, errY); applyError(`in-hq-${pIdx}-${plIdx}`, errHq); hasError = (errId || errX || errY || errHq || errDup); const isChanged = (pIdVal != original.id) || (xVal != original.x) || (yVal != original.y) || (hqVal != original.hq); const row = document.getElementById(`row-${pIdx}-${plIdx}`); if (isChanged && !hasError) row.classList.add('row-dirty'); else row.classList.remove('row-dirty'); }
+    function applyError(elId, msg) { const el = document.getElementById(elId); if(msg) { el.classList.add('input-error'); el.setAttribute('data-tooltip', msg); } else { el.classList.remove('input-error'); el.removeAttribute('data-tooltip'); } }
+    async function saveRow(pIdx, plIdx, btnEl) { 
+        const p = enemyPlayersWithPlanets[pIdx].planets[plIdx]; 
+        const player = enemyPlayersWithPlanets[pIdx]; // Get the player object to access name/id
+        const row = document.getElementById(`row-${pIdx}-${plIdx}`);
+
+        const newId = document.getElementById(`in-id-${pIdx}-${plIdx}`).value; 
+        const newX = document.getElementById(`in-x-${pIdx}-${plIdx}`).value; 
+        const newY = document.getElementById(`in-y-${pIdx}-${plIdx}`).value; 
+        let newHq = document.getElementById(`in-hq-${pIdx}-${plIdx}`).value; 
+        
+        // 1. LOCK BUTTON IMMEDIATELY
+        if(btnEl) {
+            btnEl.disabled = true;
+            btnEl.innerText = "⏳";
+        }
+
+        try {
+            // 2. DUPLICATE CHECK (Client Side)
+            // We check if any OTHER row (not this one) has the same ID
+            const duplicate = player.planets.find(x => x.id == newId && x !== p);
+            if (duplicate) {
+                notify(`Planet ID ${newId} exists!`, true);
+                if(btnEl) { btnEl.innerText = "⚠️"; btnEl.disabled = false; }
+                return;
+            }
+
+            // 3. 0,0 CHECK (Non-Blocking)
+            // Instead of freezing with confirm(), we just notify the user but ALLOW the save.
+            if (newX == 0 && newY == 0) {
+                notify("⚠️ Saving 0,0 coordinates...", true);
+            }
+
+            // 4. PREPARE DATA
+            if(newHq.trim() === "" || newHq === "?") newHq = null;
+
+            const payload = { 
+                account_Id: player.id, 
+                planet_Id: Number(newId) + 1, 
+                name: player.name, // FIX: Use the Player's Name (e.g. "MadMarx")
+                coord_X: newX, 
+                coord_Y: newY, 
+                HQ_Level: newHq 
+            };
+
+            let error = null;
+            let data = null;
+
+            // 5. SEND TO DB
+            if(p.db_id) { 
+                const res = await supabaseClient.from('planetsv2').update(payload).eq('id', p.db_id).select();
+                error = res.error;
+            } else { 
+                const res = await supabaseClient.from('planetsv2').insert(payload).select();
+                error = res.error;
+                data = res.data;
+            }
+
+            // 6. HANDLE RESULT
+            if (error) {
+                console.error("DB Error:", error);
+                notify("Error: " + error.message, true);
+                if(btnEl) { btnEl.innerText = "✖"; btnEl.disabled = false; }
+            } else {
+                // SUCCESS
+                if(btnEl) btnEl.innerText = "✔";
+                
+                // Update Local Memory immediately (No full reload needed yet)
+                if(data && data.length > 0) p.db_id = data[0].id;
+                p.isNew = false;
+                p.id = newId; p.x = newX; p.y = newY; p.hq = newHq;
+
+                // Remove 'dirty' class -> Hides the check button via CSS
+                if(row) row.classList.remove('row-dirty');
+                
+                if(btnEl) btnEl.disabled = false;
+                
+                // Sync background data quietly
+                await loadEnemyPlanets(); 
+            }
+        } catch (err) {
+            console.error("Script Error:", err);
+            notify("Script Error (See Console)", true);
+            if(btnEl) { btnEl.innerText = "✖"; btnEl.disabled = false; }
+        }
+    }
+    async function killPlanet(pid, uiPlanetId) { const hours = warStats.enemyRegenVal || 3; const deadUntil = new Date(Date.now() + hours * 3600000); const player = enemyPlayersWithPlanets.find(x => x.id == pid); const planet = player.planets.find(x => x.id == uiPlanetId); planet.deadUntil = deadUntil; render(); const dbPlanetId = Number(uiPlanetId) + 1; await supabaseClient.from('planet_timers').insert({ account_id: pid, planet_index: dbPlanetId, dead_until: deadUntil.toISOString() }); }
+    async function resetPlanet(pid, uiPlanetId) { const player = enemyPlayersWithPlanets.find(x => x.id == pid); const planet = player.planets.find(x => x.id == uiPlanetId); planet.deadUntil = null; render(); const dbPlanetId = Number(uiPlanetId) + 1; await supabaseClient.from('planet_timers').delete().match({ account_id: pid, planet_index: dbPlanetId }); loadEnemyPlanets(); }
+
+    // --- HELPER: Non-blocking Error Notification ---
+    function notify(msg, isError = false) {
+        console.log(msg);
+        // Use the parent window's status bar instead of alert to prevent freezing
+        if (window.parent && window.parent.setStatus) {
+            window.parent.setStatus((isError ? "⚠️ " : "") + msg);
+        } else {
+            // Fallback only if necessary
+            if(isError) alert(msg); 
+        }
+    }
+
+function addPlanet(pIdx) { 
+        const player = enemyPlayersWithPlanets[pIdx];
+        
+        // FIX: If there is already a Ghost/Unsaved row at the top, remove it first.
+        // This prevents having two "ID: 0" rows which causes the immediate duplicate error.
+        if (player.planets.length > 0) {
+            const top = player.planets[0];
+            if (!top.db_id) {
+                player.planets.shift(); // Remove the old empty row
+            }
+        }
+
+        // Add new blank row to TOP (unshift)
+        player.planets.unshift({ 
+            id: 0, x: 0, y: 0, hq: null, 
+            isNew: true, 
+            db_id: null 
+        }); 
+        
+        if(!isEditMode) toggleEditMode(); 
+        render(); 
+    }
+
+    async function saveRow(pIdx, plIdx, btnEl) { 
+        const p = enemyPlayersWithPlanets[pIdx].planets[plIdx]; 
+        const playerDBId = enemyPlayersWithPlanets[pIdx].id;
+
+        const newId = document.getElementById(`in-id-${pIdx}-${plIdx}`).value; 
+        const newX = document.getElementById(`in-x-${pIdx}-${plIdx}`).value; 
+        const newY = document.getElementById(`in-y-${pIdx}-${plIdx}`).value; 
+        let newHq = document.getElementById(`in-hq-${pIdx}-${plIdx}`).value; 
+        
+        // UX: Disable button immediately
+        if(btnEl) { btnEl.disabled = true; btnEl.innerText = "⏳"; }
+
+        // 1. VALIDATION: Check for duplicates
+        const duplicate = enemyPlayersWithPlanets[pIdx].planets.find(x => x.id == newId && x !== p);
+        
+        if (duplicate) {
+            notify(`Planet ID ${newId} already exists!`, true);
+            // Re-enable button and show warning icon
+            if(btnEl) { btnEl.innerText = "⚠️"; btnEl.disabled = false; }
+            return;
+        }
+
+        // 2. VALIDATION: 0,0 check
+        if (newX == 0 && newY == 0) {
+            if (!confirm("Save 0,0 coordinates?")) {
+                if(btnEl) { btnEl.innerText = "✔"; btnEl.disabled = false; }
+                return;
+            }
+        }
+
+        if(newHq.trim() === "" || newHq === "?") newHq = null;
+
+        let planetName = "Main Planet";
+        if (Number(newId) > 0) planetName = "Colony " + newId;
+
+        const payload = { 
+            account_Id: playerDBId, 
+            planet_Id: Number(newId) + 1, 
+            name: planetName,
+            coord_X: newX, 
+            coord_Y: newY, 
+            HQ_Level: newHq 
+        };
+
+        try {
+            let error = null;
+            let data = null;
+
+            if(p.db_id) { 
+                const res = await supabaseClient.from('planetsv2').update(payload).eq('id', p.db_id).select();
+                error = res.error;
+            } else { 
+                const res = await supabaseClient.from('planetsv2').insert(payload).select();
+                error = res.error;
+                data = res.data;
+            }
+
+            if (error) {
+                console.error("DB Error:", error);
+                notify("Save Failed: " + error.message, true);
+                if(btnEl) { btnEl.innerText = "✖"; btnEl.disabled = false; }
+            } else {
+                if(btnEl) btnEl.innerText = "✔";
+                
+                // Success: Update Local Memory immediately
+                if(data && data.length > 0) p.db_id = data[0].id;
+                p.isNew = false;
+                p.id = newId; p.x = newX; p.y = newY; p.hq = newHq;
+
+                // Remove dirty flag visually (hides the check button)
+                const row = document.getElementById(`row-${pIdx}-${plIdx}`);
+                if(row) row.classList.remove('row-dirty');
+                
+                if(btnEl) btnEl.disabled = false;
+                
+                // Sync background data (no re-render)
+                await loadEnemyPlanets(); 
+            }
+        } catch (err) {
+            console.error("Script Error:", err);
+            if(btnEl) { btnEl.innerText = "✖"; btnEl.disabled = false; }
+        }
+    }
+
+async function deletePlanet(pIdx, plIdx) { 
+        const p = enemyPlayersWithPlanets[pIdx].planets[plIdx]; 
+
+        // FIX: If it hasn't been saved to DB yet (isNew), just remove it from screen
+        if (!p.db_id) {
+            enemyPlayersWithPlanets[pIdx].planets.splice(plIdx, 1);
+            render();
+            return;
+        }
+
+        // If it IS in the DB, ask for confirmation and delete from server
+        if(!confirm("Permanently delete this coordinate?")) return; 
+
+        if(p.db_id) { 
+            // Delete timer first (Foreign Key)
+            await supabaseClient.from('planet_timers').delete().match({ 
+                account_id: enemyPlayersWithPlanets[pIdx].id, 
+                planet_index: Number(p.id) + 1 
+            });
+            
+            const { error } = await supabaseClient.from('planetsv2').delete().eq('id', p.db_id);
+            if(error) { 
+                alert("Delete Failed: " + error.message); 
+                return; 
+            }
+        }
+        // Remove locally after DB success
+        enemyPlayersWithPlanets[pIdx].planets.splice(plIdx, 1); 
+        render(); 
+    }
+    const tooltipEl = document.getElementById('global-tooltip'); document.addEventListener('mousemove', (e) => { const target = e.target.closest('[data-tooltip]'); if (target) { tooltipEl.textContent = target.getAttribute('data-tooltip'); tooltipEl.style.display = 'block'; let top = e.clientY - 30; let left = e.clientX; if(top < 10) top = e.clientY + 20; tooltipEl.style.top = `${top}px`; tooltipEl.style.left = `${left}px`; } else { tooltipEl.style.display = 'none'; } });
+    function switchTab(tabName) { currentTab = tabName; render(); }
+    init(); 
+  </script>
+</body>
+</html>
